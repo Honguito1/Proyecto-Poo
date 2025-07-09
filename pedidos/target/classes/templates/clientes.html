@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Clientes</title>
+    <style>
+        body {
+            background-color: #383E42;
+            font-family: "Agency FB", Arial, sans-serif;
+            color: #CDCDCD;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 30px;
+        }
+
+        form, table {
+            margin: 30px auto;
+            max-width: 600px;
+        }
+
+        input {
+            width: 80%;
+            padding: 8px;
+            margin: 5px;
+            border-radius: 4px;
+            border: none;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-agregar {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-agregar:hover {
+            background-color: #45a049;
+        }
+
+        .btn-eliminar {
+            background-color: #D9534F;
+            color: white;
+        }
+
+        .btn-eliminar:hover {
+            background-color: #C9302C;
+        }
+
+        table {
+            border-collapse: collapse;
+            background-color: white;
+            color: black;
+            width: 90%;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .link a {
+            background-color: white;
+            padding: 6px 14px;
+            border-radius: 12px;
+            color: #383E42;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Clientes</h1>
+
+<form th:action="@{/guardarCliente}" method="post" th:object="${cliente}">
+    <input type="text" th:field="*{nombre}" placeholder="Nombre" required />
+    <input type="email" th:field="*{email}" placeholder="Email" required />
+    <input type="text" th:field="*{direccion}" placeholder="Dirección" required />
+    <input type="text" th:field="*{telefono}" placeholder="Teléfono" required />
+    <button type="submit" class="btn-agregar">Agregar Cliente</button>
+</form>
+
+<h2>Lista de Clientes</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Dirección</th>
+        <th>Teléfono</th>
+        <th>Acción</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="cliente : ${clientesList}">
+        <td th:text="${cliente.nombre}">Nombre</td>
+        <td th:text="${cliente.email}">Email</td>
+        <td th:text="${cliente.direccion}">Dirección</td>
+        <td th:text="${cliente.telefono}">Teléfono</td>
+        <td>
+            <form th:action="@{/eliminarCliente}" method="post">
+                <input type="hidden" name="firebaseKey" th:value="${cliente.firebaseKey}" />
+                <button type="submit" class="btn-eliminar">Eliminar</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div style="height: 15px;"></div>
+<div>
+    <a th:href="@{/}"
+       style="background-color: white; padding: 3px 8px; border-radius: 12px; font-size: 20px;">
+        INICIO
+    </a>
+</div>
+
+</body>
+</html>
