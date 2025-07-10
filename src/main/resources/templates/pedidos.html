@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedidos</title>
+    <style>
+        body {
+            background-color: #383E42;
+            font-family: "Agency FB", Arial, sans-serif;
+            color: #CDCDCD;
+            text-align: center;
+        }
+
+        h1, h2 {
+            margin-top: 20px;
+        }
+
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 95%;
+            max-width: 1000px;
+            background-color: #2D2F33;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+            color: #CDCDCD;
+            font-size: 14px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background-color: #454B50;
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #555;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin: 2px 0;
+        }
+
+        form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            margin-top: 10px;
+        }
+
+        select, button, input {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+        }
+
+        select[multiple] {
+            width: 300px;
+            height: 120px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .delete-btn {
+            background-color: crimson;
+        }
+
+        .delete-btn:hover {
+            background-color: #a00000;
+        }
+
+        .nav {
+            margin: 25px 0;
+        }
+
+        .nav a {
+            background-color: white;
+            padding: 6px 14px;
+            border-radius: 12px;
+            color: #383E42;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .nav a:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Pedidos</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>Fecha</th>
+        <th>Estado</th>
+        <th>Cliente</th>
+        <th>Productos</th>
+        <th>Actualizar Estado</th>
+        <th>Total</th>
+        <th>Eliminar</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="pedido : ${pedidos}">
+        <td th:text="${pedido.fecha}">Fecha</td>
+        <td th:text="${pedido.estado}">Estado</td>
+        <td>
+            <div th:if="${pedido.cliente != null}">
+                <strong th:text="${pedido.cliente.nombre}">Nombre</strong><br/>
+                <small th:text="'Email: ' + ${pedido.cliente.email}"></small><br/>
+                <small th:text="'Tel: ' + ${pedido.cliente.telefono}"></small><br/>
+                <small th:text="'Dir: ' + ${pedido.cliente.direccion}"></small>
+            </div>
+            <span th:if="${pedido.cliente == null}">Sin cliente</span>
+        </td>
+        <td>
+            <ul>
+                <li th:each="producto : ${pedido.productos}">
+                    <span th:text="${producto.nombre}">Nombre</span> -
+                    <span th:text="${producto.precio}">Precio</span>
+                    <span th:if="${producto.tipo != null}">
+                        (<span th:text="${producto.tipo}">Tipo</span>
+                        <span th:if="${producto.tipo == 'Comida'}">, Cant: <span th:text="${producto.cantidad}">Cantidad</span></span>)
+                    </span>
+                </li>
+            </ul>
+        </td>
+        <td>
+            <form th:action="@{/actualizarEstado}" method="post">
+                <input type="hidden" name="firebaseKey" th:value="${pedido.firebaseKey}" />
+                <select name="estado">
+                    <option value="ELABORANDO" th:selected="${pedido.estado == 'ELABORANDO'}">ELABORANDO</option>
+                    <option value="EN_CAMINO" th:selected="${pedido.estado == 'EN_CAMINO'}">EN_CAMINO</option>
+                    <option value="ENTREGADO" th:selected="${pedido.estado == 'ENTREGADO'}">ENTREGADO</option>
+                </select>
+                <button type="submit">Actualizar</button>
+            </form>
+        </td>
+        <td th:text="${pedido.costoTotal}">Total</td>
+        <td>
+            <form th:action="@{/eliminarPedido}" method="post">
+                <input type="hidden" name="firebaseKey" th:value="${pedido.firebaseKey}" />
+                <button type="submit" class="delete-btn">Eliminar</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h2>Agregar Nuevo Pedido</h2>
+
+<form th:action="@{/guardarPedido}" method="post">
+    <label for="clienteEmail">Selecciona Cliente:</label>
+    <select name="clienteEmail" id="clienteEmail" required>
+        <option value="" disabled selected>-- Selecciona un cliente --</option>
+        <option th:each="cliente : ${clientesDisponibles}"
+                th:value="${cliente.email}"
+                th:text="${cliente.nombre + ' (' + cliente.email + ')'}">
+        </option>
+    </select>
+
+    <label for="productos">Selecciona productos (Ctrl/Cmd + Click para múltiples):</label>
+    <select id="productos" name="productosSeleccionados" multiple size="6" required>
+        <option th:each="producto : ${productosDisponibles}"
+                th:value="${producto.nombre + ';' + producto.precio + ';' + (producto.cantidad != null ? producto.cantidad : '') + ';' + (producto.tipo != null ? producto.tipo : '')}"
+                th:text="${producto.nombre + ' - $' + producto.precio + (producto.tipo != null ? ' (' + producto.tipo + ')' : '')}">
+        </option>
+    </select>
+
+    <button type="submit">Crear Pedido</button>
+</form>
+
+<div class="nav">
+    <a th:href="@{/}">INICIO</a>
+</div>
+
+</body>
+</html>

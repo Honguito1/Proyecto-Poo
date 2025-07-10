@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Clientes</title>
+    <style>
+        body {
+            background-color: #383E42;
+            font-family: "Agency FB", Arial, sans-serif;
+            color: #CDCDCD;
+            text-align: center;
+        }
+
+        h1, h2 {
+            margin-top: 30px;
+        }
+
+        form, table {
+            margin: 30px auto;
+            max-width: 700px;
+        }
+
+        input {
+            width: 85%;
+            padding: 10px;
+            margin: 6px 0;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-agregar {
+            background-color: #4CAF50;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .btn-agregar:hover {
+            background-color: #45a049;
+        }
+
+        .btn-eliminar {
+            background-color: crimson;
+            color: white;
+        }
+
+        .btn-eliminar:hover {
+            background-color: #a00000;
+        }
+
+        table {
+        border-collapse: collapse;
+        background-color: #2D2F33;
+        color: #CDCDCD;
+        width: 90%;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 6px 8px; /* ⬅️ reducido */
+        border-bottom: 1px solid #444;
+    }
+
+    th {
+        background-color: #454B50;
+    }
+
+        .link a {
+            background-color: white;
+            padding: 6px 14px;
+            border-radius: 12px;
+            color: #383E42;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .link a:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Clientes</h1>
+
+<form th:action="@{/guardarCliente}" method="post" th:object="${cliente}">
+    <input type="text" th:field="*{nombre}" placeholder="Nombre" required />
+    <input type="email" th:field="*{email}" placeholder="Email" required />
+    <input type="text" th:field="*{direccion}" placeholder="Dirección" required />
+    <input type="text" th:field="*{telefono}" placeholder="Teléfono" required />
+    <button type="submit" class="btn-agregar">Agregar Cliente</button>
+</form>
+
+<h2>Lista de Clientes</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Dirección</th>
+        <th>Teléfono</th>
+        <th>Acción</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="cliente : ${clientesList}">
+        <td th:text="${cliente.nombre}">Nombre</td>
+        <td th:text="${cliente.email}">Email</td>
+        <td th:text="${cliente.direccion}">Dirección</td>
+        <td th:text="${cliente.telefono}">Teléfono</td>
+        <td>
+            <form th:action="@{/eliminarCliente}" method="post">
+                <input type="hidden" name="firebaseKey" th:value="${cliente.firebaseKey}" />
+                <button type="submit" class="btn-eliminar">Eliminar</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div style="height: 15px;"></div>
+<div class="link">
+    <a th:href="@{/}">INICIO</a>
+</div>
+
+</body>
+</html>
